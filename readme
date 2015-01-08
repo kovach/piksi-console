@@ -1,0 +1,5 @@
+installation:
+./init.sh
+
+running:
+node js/server-main.js 
