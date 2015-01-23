@@ -2,8 +2,6 @@ var _ = require('underscore');
 var wso = require('./ws-obj');
 var WS = require('ws');
 
-var plot = require('../plot');
-
 var init = function(port) {
   var ws = new WS('ws://' + document.domain + ':' + port + '/');
   // Receive messages from server
@@ -22,14 +20,11 @@ var init = function(port) {
     'ping': function(msg) {
       output.handle({tag: 'pong', mark: msg.mark});
     },
-    'pos': function(msg) {
-      plot.addPoint(msg.point);
-    },
   }
 
   input.add(handlers);
   input.add_default(function(msg) {
-    console.log('defaulting: ', msg);
+    console.log('no handler: ', msg);
   });
 
   return {output: output, input: input};

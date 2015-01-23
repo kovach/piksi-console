@@ -14,16 +14,11 @@ var TAG = {
   'HEARTBEAT': 0xffff,
 };
 
-// Global state
-// msg output
-var msgs = [];
-var parser;
-var piksiObj;
-
 var HEADER = 0;
 var DATA = 1;
 var CRC = 2;
 var WAITING = 3;
+
 var mkParser = function() {
   return {
     header: [],
@@ -32,17 +27,23 @@ var mkParser = function() {
     crc: [],
   };
 }
+var resetParser = function(p) {
+  p.header = [];
+  p.state = WAITING;
+  p.data = [];
+  p.crc = [];
+}
 
 var word = function(b1, b2) {
   return b1 + 256 * b2;
 }
 
-var step = function(p, b) {
+var step = function(object, p, b) {
   switch (p.state) {
     case WAITING:
       if (b === MAGIC) {
-        parser = mkParser();
-        parser.state = HEADER;
+        resetParser(p);
+        p.state = HEADER;
       }
       break;
     case HEADER:
@@ -67,65 +68,80 @@ var step = function(p, b) {
         p.vars.crc = word(p.crc[0], p.crc[1]);
         p.state = WAITING;
       }
-      addMsg();
+      addMsg(object, p);
       break;
   }
 }
 
-var addMsg = function() {
+var addMsg = function(object, parser) {
   var msg = {
     header: parser.vars,
     data: parser.data,
   };
 
-  // TODO logging?
-  //msgs.push(msg);
-
-  if (msgs.length % 100 === 0) {
-    //console.log(msg.header.id.toString(16), msg.header.length);
-  }
-
   switch (msg.header.id) {
+    case TAG.HEARTBEAT:
+      var notokay = 1 &
+        binary.parse(new Buffer(msg.data))
+        .word32lu('flags')
+        .vars.flags;
+      object.handle({tag: 'heartbeat', error: notokay});
+      break;
     case TAG.BASELINE_NED:
       var vars =
         binary.parse(new Buffer(msg.data))
         .skip(4)
         .word32ls('north')
         .word32ls('east')
+        .word32ls('down')
+        .skip(2)
+        .skip(2)
+        .word8ls('numSats')
+        .word8ls('status')
         .vars;
       
       var point = {
         x: vars.east,
         y: vars.north,
       };
+      var fixed_mode = vars.status & 1;
 
-      piksiObj.handle({tag: 'pos', point: point});
+      object.handle({
+        tag: 'baseline',
+        point: point,
+        numSats: vars.numSats,
+        mode: fixed_mode});
       break;
   }
 }
 
-var readData = function(data) {
-  data.toJSON().forEach(function(b) {
-    step(parser, b);
-  });
+var reader = function(object, parser) {
+  var readData = function(data) {
+    data.toJSON().forEach(function(b) {
+      step(object, parser, b);
+    });
+  }
+
+  return readData;
 }
 
-var main = function(serial) {
-  piksiObj = new obj();
+var mkConnection = function(serial) {
+  var piksiObj = new obj();
 
-  piksi = new SerialPort(serial, {
+  var piksi = new SerialPort(serial, {
     baudrate: 115200,
   });
 
   piksi.on('open', function() {
     console.log('serial port open!');
     parser = mkParser();
-    piksi.on('data', readData);
+    piksi.on('data', reader(piksiObj, parser));
+    piksiObj.handle({tag: 'open'});
   });
 
   return piksiObj;
 }
 
 module.exports = {
-  init: main,
+  init: mkConnection,
 }

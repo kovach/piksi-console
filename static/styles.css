@@ -1,3 +1,7 @@
+.point {
+  stroke: steelblue;
+  fill: steelblue;
+}
 .line {
   fill: none;
   stroke: steelblue;
