@@ -2,9 +2,7 @@
   "dependencies":{
     "underscore": "",
     "serialport": "",
-    "binary": "",
-    "mori": "",
-    "memory-streams": ""
+    "binary": ""
   },
   "name": "piksi-console",
   "version": "0.0.1",

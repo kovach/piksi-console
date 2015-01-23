@@ -1,5 +1,5 @@
 installation:
-./init.sh
+npm install
 
-running:
+server:
 node js/server-main.js 
