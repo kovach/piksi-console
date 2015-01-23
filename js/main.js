@@ -1,4 +1,6 @@
 _ = require('underscore');
-var client = require('./client');
+var client = require('../base/client');
+var plot = require('../plot');
 
-client.init(2222);
+plot.init();
+client(2223);

@@ -1,0 +1,14 @@
+{
+  "dependencies":{
+    "underscore": "",
+    "serialport": "",
+    "binary": "",
+    "mori": "",
+    "memory-streams": ""
+  },
+  "name": "piksi-console",
+  "version": "0.0.1",
+  "repository": "git@github.com:kovach/piksi-console.git",
+  "main": "console.js"
+}
+

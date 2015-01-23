@@ -53,7 +53,9 @@ var startServer = function(port) {
       });
 
       // Now handle the message with ID added
-      base_server.handle({tag: 'connection', ws: ws, id: id});
+      base_server.handle({tag: 'connection', ws: ws,
+        output: output, input: input,
+        id: id});
     },
     // {id}
     'close': function(msg) {
