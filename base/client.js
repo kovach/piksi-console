@@ -24,7 +24,7 @@ var init = function(port) {
 
   input.add(handlers);
   input.add_default(function(msg) {
-    console.log('no handler: ', msg);
+    //console.log('no handler: ', msg);
   });
 
   return {output: output, input: input};

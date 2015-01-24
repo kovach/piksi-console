@@ -110,7 +110,7 @@ var addMsg = function(object, parser) {
         tag: 'baseline',
         point: point,
         numSats: vars.numSats,
-        mode: fixed_mode});
+        fixedMode: fixed_mode});
       break;
   }
 }
@@ -142,6 +142,4 @@ var mkConnection = function(serial) {
   return piksiObj;
 }
 
-module.exports = {
-  init: mkConnection,
-}
+module.exports = mkConnection

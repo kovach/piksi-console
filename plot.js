@@ -1,78 +1,75 @@
 var _ = require('underscore');
 
-// Global state
-var data = [];
-var path;
-var x, y;
+// Global refs
 var svg;
 
-var main = function() {
-
+var dimensions = function() {
   var margin = {top: 20, right: 20, bottom: 20, left: 20},
-    width = 800 - margin.left - margin.right,
-    height = 800 - margin.top - margin.bottom;
+      width = 800 - margin.left - margin.right,
+      height = 800 - margin.top - margin.bottom;
 
-  x = d3.scale.linear()
-    .range([0, width]);
-  y = d3.scale.linear()
-    .range([height, 0]);
-
+  return {margin: margin, width: width, height: height};
+}
+var init = function() {
+  var dims = dimensions();
   svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("width", dims.width + dims.margin.left + dims.margin.right)
+    .attr("height", dims.height + dims.margin.top + dims.margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + dims.margin.left + "," + dims.margin.top + ")");
 
-  line = d3.svg.line()
-    .x(function(d) { return x(d.x); })
-    .y(function(d) { return y(d.y); });
+}
+var plot = function(color) {
+  var plot = this;
+  var dims = dimensions();
 
-  path = mkPath(data);
+  plot.color = color;
+
+  plot.x = d3.scale.linear()
+    .range([0, dims.width]);
+  plot.y = d3.scale.linear()
+    .range([dims.height, 0]);
+
+  plot.line = d3.svg.line()
+    .x(function(d) { return plot.x(d.x); })
+    .y(function(d) { return plot.y(d.y); });
+
+
+  plot.data = [];
+  plot.path = mkPath(plot);
 }
 
-var mkPoints = function(data) {
-  return svg.selectAll(".point")
-    .data(data)
-    .enter().append("circle")
-    .attr("class", "point")
-    .attr("cx", function(d) { return x(d.x); })
-    .attr("cy", function(d) { return y(d.y); })
-    .attr("r", 2);
-}
-var mkPath = function(data) {
-  return svg.append("path")
-    .datum(data)
-    .attr("class", "line")
-    .attr("d", line);
-}
+var points = false;
 
-var push = function(pt) {
+plot.prototype.update = function(pt) {
+  var plot = this;
+  var data = plot.data;
   data.push(pt);
-  if (data.length > 222) {
-    data.shift();
-  }
-  x.domain(d3.extent(data, function(d) { return d.x }));
-  y.domain(d3.extent(data, function(d) { return d.y }));
-  redraw();
+  this.x.domain(d3.extent(data, function(d) { return d.x }));
+  this.y.domain(d3.extent(data, function(d) { return d.y }));
+  this.path.datum(data).attr("d", plot.line);
 }
 
-points = false;
 
-var redraw = function() {
-  if (points) {
-    mkPoints(data);
-  } else {
-    path.datum(data)
-      .attr("d", line);
-  }
-}
+//var mkPoints = function(data) {
+//  return svg.selectAll(".point")
+//    .data(data)
+//    .enter().append("circle")
+//    .attr("class", "point")
+//    .attr("cx", function(d) { return plot.x(d.x); })
+//    .attr("cy", function(d) { return plot.y(d.y); })
+//    .attr("r", 2);
+//}
 
-var clear = function() {
-  data = [];
-  redraw();
+var mkPath = function(plot) {
+  return svg.append("path")
+    .datum(plot.data)
+    .attr("class", "line")
+    .attr("d", plot.line)
+    .attr("stroke", plot.color);
 }
 
 module.exports = {
-  init: main,
-  addPoint: push,
+  init: init,
+  plot: plot,
 }
