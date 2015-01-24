@@ -2,7 +2,9 @@
   "dependencies":{
     "underscore": "",
     "serialport": "",
-    "binary": ""
+    "binary": "",
+    "ws": "",
+    "express": ""
   },
   "name": "piksi-console",
   "version": "0.0.1",
