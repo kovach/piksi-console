@@ -1,5 +1,7 @@
 installation:
 npm install
+npm install -g browserify
+browserify js/main.js -o static/bundle.js
 
 server:
-node js/server-main.js 
+node js/server-main.js
