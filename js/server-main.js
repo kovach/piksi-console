@@ -4,9 +4,10 @@ var pc = require('../console');
 
 var sockets = {};
 
-var piksi1 = pc("/dev/cu.usbserial-PK1229");
-var piksi2 = pc("/dev/cu.usbserial-PK1232");
+var piksi1 = pc("/dev/cu.usbserial-00001014");
+var piksi2 = pc("/dev/cu.usbserial-00002014");
 //var piksi = pc("/dev/tty.usbserial-00001014");
+
 
 var server = startServer(2223);
 
@@ -14,12 +15,14 @@ var server = startServer(2223);
 piksi1.add_default(function(msg) {
   msg.piksi_id = 1;
   _.each(sockets, function(out) {
+    //console.log("piksi 1", msg);
     out.handle(msg);
   });
 });
 piksi2.add_default(function(msg) {
   msg.piksi_id = 2;
   _.each(sockets, function(out) {
+    //console.log("piksi 2", msg);
     out.handle(msg);
   });
 });
