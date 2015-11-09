@@ -11,7 +11,7 @@ var init = function(port) {
 
   var handlers = {
     'id': function(data) {
-      console.log('id: ', data.id)
+      //console.log('id: ', data.id)
     },
     'open': function() {
       console.log('ws open!');

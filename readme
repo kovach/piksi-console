@@ -5,3 +5,6 @@ browserify js/main.js -o static/bundle.js
 
 server:
 node js/server-main.js
+
+browser:
+open http://localhost:2223
